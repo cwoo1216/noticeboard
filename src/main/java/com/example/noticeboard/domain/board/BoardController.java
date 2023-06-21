@@ -1,13 +1,12 @@
 package com.example.noticeboard.domain.board;
 
 import com.example.noticeboard.common.dto.MessageDto;
+import com.example.noticeboard.common.dto.SearchDto;
+import com.example.noticeboard.common.paging.PagingResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -43,9 +42,9 @@ public class BoardController {
 
     // 게시글 리스트
     @GetMapping("/board/list.do")
-    public String openBoardList(Model model){
-        List<BoardResponse> boards = boardService.findAllBoard();
-        model.addAttribute("boards", boards);
+    public String openBoardList(@ModelAttribute("params") final SearchDto params, Model model){
+        PagingResponse<BoardResponse> response = boardService.findAllBoard(params);
+        model.addAttribute("response", response);
         return "board/list";
     }
 
