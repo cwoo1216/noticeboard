@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/basic">
+<th:block layout:fragment="title">
+    <title>글작성 페이지</title>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="page_tits">
+        <h3>게시판 관리</h3>
+        <p class="path"><strong>현재 위치 :</strong> <span>게시판 관리</span> <span>리스트형</span> <span>글작성</span></p>
+    </div>
+
+    <div class="content">
+        <section>
+            <form id="saveForm" method="post" autocomplete="off">
+                <!--/* 게시글 수정인 경우, 서버로 전달할 게시글 번호 (PK) */-->
+                <input type="hidden" id="id" name="id" th:if="${board != null}" th:value="${board.id}" />
+
+                <table class="tb tb_row">
+                    <colgroup>
+                        <col style="width:15%;" /><col style="width:35%;" /><col style="width:15%;" /><col style="width:35%;" />
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <th scope="row">종목</th>
+                        <td>
+                            <select id="event" name="event" title="종목 선택">
+                                <option value="FootBall">축구</option>
+                                <option value="BasketBall">농구</option>
+                                <option value="BaseBall">야구</option>
+                            </select>
+                        </td>
+
+                        <th scope="row">등록일</th>
+                        <td colspan="3"><input type="text" id="createdTime" name="createdTime" readonly /></td>
+                    </tr>
+
+                    <tr>
+                        <th>이름 <span class="es">필수 입력</span></th>
+                        <td colspan="3"><input type="text" id="name" name="name" maxlength="50" placeholder="이름을 입력해 주세요." /></td>
+                    </tr>
+
+                    <tr>
+                        <th>포지션 <span class="es">필수 입력</span></th>
+                        <td colspan="3"><input type="text" id="location" name="location" maxlength="10" placeholder="포지션을 입력해 주세요." /></td>
+                    </tr>
+
+                    <tr>
+                        <th>등번호 <span class="es">필수 입력</span></th>
+                        <td colspan="3"><input type="text" id="backNo" name="backNo" maxlength="10" placeholder="등번호를 입력해 주세요." /></td>
+                    </tr>
+
+                    <tr>
+                        <th>생일 <span class="es">필수 입력</span></th>
+                        <td colspan="3"><input type="text" id="birth" name="birth" maxlength="10" placeholder="생일을 입력해 주세요." /></td>
+                    </tr>
+
+                    <tr>
+                        <th>선호 발(손)<span class="es">필수 입력</span></th>
+                        <td colspan="3"><input type="text" id="preference" name="preference" maxlength="10" placeholder="선호 발(손)을 입력해 주세요." /></td>
+                    </tr>
+
+                    <tr>
+                        <th>국적 <span class="es">필수 입력</span></th>
+                        <td colspan="3"><input type="text" id="nation" name="nation" maxlength="10" placeholder="국적을 입력해 주세요." /></td>
+                    </tr>
+
+                    <tr>
+                        <th>소속팀 <span class="es">필수 입력</span></th>
+                        <td colspan="3"><input type="text" id="team" name="team" maxlength="10" placeholder="소속팀을 입력해 주세요." /></td>
+                    </tr>
+
+                    <tr>
+                        <th>작성자 <span class="es">필수 입력</span></th>
+                        <td colspan="3"><input type="text" id="writer" name="writer" maxlength="10" placeholder="당신의 이름을 입력해 주세요." /></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+            <p class="btn_set">
+                <button type="button" id="saveBtn" onclick="saveBoard();" class="btns btn_st3 btn_mid">저장</button>
+                <a th:href="@{/board/list.do}" class="btns btn_bdr3 btn_mid">뒤로</a>
+            </p>
+        </section>
+    </div> <!--/* .content */-->
+</th:block>
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        window.onload = () => {
+            renderPostInfo() ;
+        }
+
+        // 게시글 상세정보 렌더링
+        function renderPostInfo() {
+            const board = [[ ${board} ]];
+
+            if ( !board ) {
+                initCreatedDate();
+                return false;
+            }
+
+            const form = document.getElementById('saveForm');
+            const fields = ['event', 'name', 'location', 'backNo', 'birth', 'preference', 'nation', 'team', 'writer'];
+            form.createdTime.value = dayjs(board.createdTime).format('YYYY-MM-DD HH:mm');
+
+            fields.forEach(field => {
+                form[field].value = board[field];
+            })
+        }
+
+
+        // 등록일 초기화
+        function initCreatedDate() {
+            document.getElementById('createdTime').value = dayjs().format('YYYY-MM-DD');
+        }
+
+
+        // 게시글 저장(수정)
+        function saveBoard() {
+            const form = document.getElementById('saveForm');
+            const fields = [form.event, form.name, form.location, form.backNo, form.birth, form.preference, form.nation, form.team, form.writer];
+            const fieldNames = ['종목', '이름', '포지션', '등번호', '생일', '선호', '국적', '소속팀', '작성자'];
+
+            for (let i = 0, len = fields.length; i < len; i++) {
+                isValid(fields[i], fieldNames[i]);
+            }
+
+            document.getElementById('saveBtn').disabled = true;
+            form.action = [[ ${board == null} ]] ? '/board/save.do' : '/board/update.do';
+            form.submit();
+        }
+
+        // 필드 유효성 검사
+        function isValid(target, fieldName, focusTarget) {
+            if (target.value.trim()) {
+                return true;
+            }
+
+            const particle = (hasCoda(fieldName)) ? '을' : '를'; // 조사
+            const elementType = (target.type === 'text' || target.type === 'password' || target.type === 'search' || target.type === 'textarea') ? '입력' : '선택';
+            alert( `${fieldName + particle} ${elementType}해 주세요.` );
+
+            target.value = '';
+            ( !focusTarget ? target : focusTarget).focus();
+            throw new Error(`"${target.id}" is required...`)
+        }
+
+        // 종성 포함 여부 확인
+        function hasCoda(value) {
+            return ((value.charCodeAt(value.length - 1) - 0xAC00) % 28) > 0;
+        }
+
+        /*]]>*/
+    </script>
+</th:block>
+</html>

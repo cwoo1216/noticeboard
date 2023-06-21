@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.noticeboard.domain.board.BoardMapper">
+
+    <!-- playerdb 테이블 전체 컬럼 -->
+    <sql id="boardColumns">
+        event
+        , name
+        , location
+        , backNo
+        , birth
+        , preference
+        , nation
+        , team
+        , writer
+        , createdTime
+        , modifiedTime
+        , delete_yn
+        , id
+    </sql>
+
+    <!-- 게시글 저장 -->
+    <insert id="save" parameterType="com.example.noticeboard.domain.board.BoardRequest" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO playerdb (
+        <include refid="boardColumns" />
+        ) VALUES (
+        #{event}
+        , #{name}
+        , #{location}
+        , #{backNo}
+        , #{birth}
+        , #{preference}
+        , #{nation}
+        , #{team}
+        , #{writer}
+        , NOW()
+        , NULL
+        , 0
+        , #{id}
+        )
+    </insert>
+
+    <!-- 게시글 정보 조회 -->
+    <select id="findById" parameterType="long" resultType="com.example.noticeboard.domain.board.BoardResponse">
+        SELECT
+        <include refid="boardColumns" />
+        FROM
+        playerdb
+        WHERE
+        id = #{value}
+    </select>
+
+    <!-- 게시글 수정 -->
+    <update id="update" parameterType="com.example.noticeboard.domain.board.BoardRequest">
+        UPDATE playerdb
+        SET
+            modifiedTime = NOW()
+            , event = #{event}
+            , name = #{name}
+            , location = #{location}
+            , backNo = #{backNo}
+            , birth = #{birth}
+            , preference = #{preference}
+            , nation = #{nation}
+            , team = #{team}
+            , writer = #{writer}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 게시글 삭제 -->
+    <delete id="deleteById" parameterType="long">
+        UPDATE playerdb
+        SET
+            delete_yn = 1
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!-- 게시글 리스트 조회 -->
+    <select id="findAll" resultType="com.example.noticeboard.domain.board.BoardResponse">
+        SELECT
+        <include refid="boardColumns" />
+        FROM
+        playerdb
+        WHERE
+        delete_yn = 0
+        ORDER BY
+        id DESC
+    </select>
+
+</mapper>
