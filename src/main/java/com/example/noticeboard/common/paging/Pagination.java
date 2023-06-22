@@ -32,7 +32,7 @@ public class Pagination {
         }
 
         // 첫 페이지 //
-        startPage = ((params.getPage() - 1) / params.getPageSize()) + params.getPageSize() + 1;
+        startPage = ((params.getPage() - 1) / params.getPageSize()) * params.getPageSize() + 1;
 
         // 끝 페이지 //
         endPage = startPage + params.getPageSize() - 1;
@@ -43,12 +43,12 @@ public class Pagination {
         }
 
         // LIMIT 시작 위치 //
-        limitStart = (params.getPage() - 1) + params.getRecordSize();
+        limitStart = (params.getPage() - 1) * params.getRecordSize();
 
         // 이전 페이지 존재 여부 //
         existPrevPage = startPage !=1;
 
         // 다음 페이지 존재 여부 //
-        existNextPage = (endPage + params.getRecordSize()) < totalRecordCount;
+        existNextPage = (endPage * params.getRecordSize()) < totalRecordCount;
     }
 }

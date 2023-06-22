@@ -79,7 +79,7 @@
             </form>
             <p class="btn_set">
                 <button type="button" id="saveBtn" onclick="saveBoard();" class="btns btn_st3 btn_mid">저장</button>
-                <a th:href="@{/board/list.do}" class="btns btn_bdr3 btn_mid">뒤로</a>
+                <button type="button" onclick="goViewPage();" class="btns btn_bdr3 btn_mid">뒤로</button>
             </p>
         </section>
     </div> <!--/* .content */-->
@@ -151,6 +151,16 @@
         // 종성 포함 여부 확인
         function hasCoda(value) {
             return ((value.charCodeAt(value.length - 1) - 0xAC00) % 28) > 0;
+        }
+
+        function goViewPage() {
+            const board = [[ ${board}]];
+            const queryString = new URLSearchParams(location.search);
+            if (!board) {
+                location.href = '/board/list.do' + '?' + queryString.toString();
+            } else {
+                location.href = '/board/view.do' + '?' + queryString.toString();
+            }
         }
 
         /*]]>*/

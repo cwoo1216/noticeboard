@@ -62,9 +62,9 @@
                 </tbody>
             </table>
             <p class="btn_set">
-                <a th:href="@{/board/write.do( id=${board.id} )}" class="btns btn_bdr4 btn_mid">수정</a>
-                <button type="button" class="btns btn_bdr1 btn_mid" onclick="deleteBoard();">삭제</button>
-                <a th:href="@{/board/list.do}" class="btns btn_bdr3 btn_mid">뒤로</a>
+                <button type="button" onclick="goWritePage();" class="btns btn_bdr4 btn_mid">수정</button>
+                <button type="button" onclick="deleteBoard();" class="btns btn_bdr1 btn_mid">삭제</button>
+                <button type="button" onclick="goListPage();" class="btns btn_bdr3 btn_mid">🏠</button>
             </p>
         </section>
     </div> <!--/* .content */-->
@@ -80,16 +80,33 @@
             if ( !confirm(id + '번 게시글을 삭제할까요?') ) {
                 return false;
             }
+            let inputHtml = '';
+
+            new URLSearchParams(location.search).forEach((value, key) => {
+                inputHtml +='<input type="hidden" name="${key}" value="${value}" />';
+            })
 
             const formHtml = `
                     <form id="deleteForm" action="/board/delete.do" method="post">
-                        <input type="hidden" id="id" name="id" value="${id}" />
+                        ${inputHtml}
                     </form>
                 `;
             const doc = new DOMParser().parseFromString(formHtml, 'text/html');
             const form = doc.body.firstChild;
             document.body.append(form);
             document.getElementById('deleteForm').submit();
+        }
+
+        // 게시글 수정
+        function goWritePage() {
+            location.href = '/board/write.do' + location.search;
+        }
+
+        // 게시글 리스트
+        function goListPage() {
+            const queryString = new URLSearchParams(location.search);
+            queryString.delete('id');
+            location.href='/board/list.do' + '?' + queryString.toString();
         }
 
         /*]]>*/

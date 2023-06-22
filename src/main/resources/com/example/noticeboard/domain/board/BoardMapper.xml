@@ -20,6 +20,42 @@
         , id
     </sql>
 
+
+    <!-- 게시글 검색 -->
+    <sql id="search">
+        <!-- 검색 키워드가 있을 때 -->
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <!-- 검색 유형이 있을 때 -->
+                <when test="searchType != null and searchType != ''">
+                    <choose>
+                        <when test="'name'.equals( searchType )">
+                            AND name LIKE CONCAT('%', #{keyword},'%')
+                        </when>
+                        <when test="'nation'.equals( searchType )">
+                            AND nation LIKE CONCAT('%', #{keyword},'%')
+                        </when>
+                        <when test="'team'.equals( searchType )">
+                            AND team LIKE CONCAT('%', #{keyword},'%')
+                        </when>
+                        <when test="'location'.equals( searchType )">
+                            AND location LIKE CONCAT('%', #{keyword},'%')
+                        </when>
+                    </choose>
+                </when>
+
+                <!-- 전체 검색일 때 -->
+                <otherwise>
+                    AND(
+                    name LIKE CONCAT('%', #{keyword},'%')
+                    OR nation LIKE CONCAT('%', #{keyword},'%')
+                    OR team LIKE CONCAT('%', #{keyword},'%')
+                    OR location LIKE CONCAT('%', #{keyword},'%')
+                    )
+                </otherwise>
+            </choose>
+        </if>
+    </sql>
     <!-- 게시글 저장 -->
     <insert id="save" parameterType="com.example.noticeboard.domain.board.BoardRequest" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO playerdb (
@@ -85,8 +121,24 @@
         playerdb
         WHERE
         delete_yn = 0
+        <include refid="search"/>
         ORDER BY
-        id DESC
+        id ASC
+        LIMIT #{pagination.limitStart}, #{recordSize}
+    </select>
+
+    <!-- 게시글 리스트 조회 -->
+    <select id="findAllByCategory" parameterType="com.example.noticeboard.common.dto.SearchDto" resultType="com.example.noticeboard.domain.board.BoardResponse">
+        SELECT
+        <include refid="boardColumns" />
+        FROM
+        playerdb
+        WHERE
+        delete_yn = 0
+        AND event = #{searchCategory}
+        <include refid="search"/>
+        ORDER BY
+        id ASC
         LIMIT #{pagination.limitStart}, #{recordSize}
     </select>
 
@@ -98,6 +150,7 @@
                 playerdb
             WHERE
                 delete_yn = 0
+            <include refid="search"/>
         </select>
 
 </mapper>

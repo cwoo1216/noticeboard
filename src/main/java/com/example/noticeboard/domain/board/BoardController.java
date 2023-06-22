@@ -8,7 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -20,6 +22,18 @@ public class BoardController {
     private String showMessageAndRedirect(final MessageDto params, Model model) {
         model.addAttribute("params", params);
         return "common/messageRedirect";
+    }
+
+    // 쿼리 스트링 파라미터 MAP
+    private Map<String, Object> queryParamsToMap(final SearchDto queryParams){
+        Map<String, Object> data = new HashMap<>();
+        data.put("page", queryParams.getPage());
+        data.put("recordSize", queryParams.getRecordSize());
+        data.put("pageSize", queryParams.getPageSize());
+        data.put("searchCategory", queryParams.getSearchCategory());
+        data.put("searchType", queryParams.getSearchType());
+        data.put("keyword", queryParams.getKeyword());
+        return data;
     }
 
     // 게시글 작성
@@ -42,8 +56,15 @@ public class BoardController {
 
     // 게시글 리스트
     @GetMapping("/board/list.do")
-    public String openBoardList(@ModelAttribute("params") final SearchDto params, Model model){
-        PagingResponse<BoardResponse> response = boardService.findAllBoard(params);
+    public String openBoardList(@ModelAttribute("params") final SearchDto params, Model model, String searchCategory){
+        PagingResponse<BoardResponse> response;
+//        System.out.println(searchCategory);
+        // 검색 종목이 없을 때
+        if (searchCategory == null || searchCategory.equals("")){
+            response = boardService.findAllBoard(params);
+        } else { //검색 종목이 있을 때
+            response = boardService.findAllBoardByCategory(params);
+        }
         model.addAttribute("response", response);
         return "board/list";
     }
@@ -66,9 +87,9 @@ public class BoardController {
 
     // 게시글 삭제
     @PostMapping("/board/delete.do")
-    public String deleteBoard(@RequestParam final Long id, Model model){
+    public String deleteBoard(@RequestParam final Long id, final SearchDto queryParams,Model model){
         boardService.deleteBoard(id);
-        MessageDto message = new MessageDto("게시글 삭제가 완료되었습니다.", "/board/list.do", RequestMethod.GET, null);
+        MessageDto message = new MessageDto("게시글 삭제가 완료되었습니다.", "/board/list.do", RequestMethod.GET, queryParamsToMap(queryParams));
         return showMessageAndRedirect(message, model);
     }
 }

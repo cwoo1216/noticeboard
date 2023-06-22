@@ -13,6 +13,7 @@ public interface BoardMapper {
     void deleteById(Long id);                                    // 게시글 삭제
     BoardResponse findById(Long id);                             // 게시글 정보 조회
     List<BoardResponse> findAll(SearchDto params);               // 게시글 리스트
+    List<BoardResponse> findAllByCategory(SearchDto params);     // 게시글 리스트
     int count (SearchDto params);                                // 게시글 카운팅
 
 }
