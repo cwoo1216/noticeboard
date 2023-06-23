@@ -15,5 +15,6 @@ public interface BoardMapper {
     List<BoardResponse> findAll(SearchDto params);               // 게시글 리스트
     List<BoardResponse> findAllByCategory(SearchDto params);     // 게시글 리스트
     int count (SearchDto params);                                // 게시글 카운팅
+    int countByCategory (SearchDto params);                      // 게시글 카운팅
 
 }

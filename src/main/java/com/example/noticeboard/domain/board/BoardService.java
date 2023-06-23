@@ -64,7 +64,7 @@ public class BoardService {
     public PagingResponse<BoardResponse> findAllBoardByCategory(final SearchDto params) {
 
         // 데이터가 없는 경우 //
-        int count = boardMapper.count(params);
+        int count = boardMapper.countByCategory(params);
         if (count < 1) {
             return new PagingResponse<>(Collections.emptyList(), null);
         }
