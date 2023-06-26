@@ -66,12 +66,62 @@
                 <button type="button" onclick="deleteBoard();" class="btns btn_bdr1 btn_mid">삭제</button>
                 <button type="button" onclick="goListPage();" class="btns btn_bdr3 btn_mid">🏠</button>
             </p>
+
+            <!--/* 댓글 작성 */-->
+            <div class="cm_write">
+                <fieldset>
+                    <legend class="skipinfo">댓글 입력</legend>
+                    <div class="cm_input">
+                        <p><textarea id="content" name="content" onkeyup="countingLength(this);" cols="90" rows="4" placeholder="댓글을 입력해 주세요."></textarea> </p>
+                        <span><button type="button" class="btns" onclick="saveComment();">등 록</button><i id="counter">0/300자</i></span>
+                    </div>
+                </fieldset>
+            </div>
         </section>
     </div> <!--/* .content */-->
 </th:block>
 <th:block layout:fragment="script">
     <script th:inline="javascript">
         /*<![CDATA[*/
+
+        //댓글 길이 카운팅
+        function countingLength(content){
+            if (content.value.length > 300){
+                alert("댓글이 너무 길어요!");
+                content.value = content.value.substring(0,300);
+                content.focus();
+            }
+            document.getElementById('counter').innerText = content.value.length + '/300자';
+        }
+
+        // 댓글 작성
+        function  saveComment(){
+
+            const content = document.getElementById('content');
+            isValid(content,'댓글');
+
+            const playerId = [[ ${board.id} ]];
+            const params = {
+                playerId : playerId,
+                content : content.value,
+                writer : '익명의 누군가'
+            }
+
+            $.ajax({
+                url : `/boards/${playerId}/comments`,
+                type : 'post',
+                contentType : 'application/json; charset=utf-8',
+                dataType : 'json',
+                data : JSON.stringify(params),
+                async : false,
+                success : function (response) {
+                    console.log(response);
+                },
+                error : function (request, status, error) {
+                    console.log(error)
+                }
+            })
+        }
 
         // 게시글 삭제
         function deleteBoard() {
@@ -109,6 +159,20 @@
             location.href='/board/list.do' + '?' + queryString.toString();
         }
 
+        // 필드 유효성 검사
+        function isValid(target, fieldName, focusTarget) {
+            if (target.value.trim()) {
+                return true;
+            }
+
+            const particle = (hasCoda(fieldName)) ? '을' : '를'; // 조사
+            const elementType = (target.type === 'text' || target.type === 'password' || target.type === 'search' || target.type === 'textarea') ? '입력' : '선택';
+            alert( `${fieldName + particle} ${elementType}해 주세요.` );
+
+            target.value = '';
+            ( !focusTarget ? target : focusTarget).focus();
+            throw new Error(`"${target.id}" is required...`)
+        }
         /*]]>*/
 
     </script>
