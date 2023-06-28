@@ -56,15 +56,13 @@ public class BoardController {
 
     // 게시글 리스트
     @GetMapping("/board/list.do")
-    public String openBoardList(@ModelAttribute("params") final SearchDto params, Model model, String searchCategory){
+    public String openBoardList(@ModelAttribute("params") final SearchDto params, Model model){
         PagingResponse<BoardResponse> response;
 //        System.out.println(searchCategory);
         // 검색 종목이 없을 때
-        if (searchCategory == null || searchCategory.equals("")){
+
             response = boardService.findAllBoard(params);
-        } else { //검색 종목이 있을 때
-            response = boardService.findAllBoardByCategory(params);
-        }
+
         model.addAttribute("response", response);
         return "board/list";
     }
@@ -87,7 +85,7 @@ public class BoardController {
 
     // 게시글 삭제
     @PostMapping("/board/delete.do")
-    public String deleteBoard(@RequestParam final Long id, final SearchDto queryParams,Model model){
+    public String deleteBoard(@RequestParam final Long id, final SearchDto queryParams, Model model){
         boardService.deleteBoard(id);
         MessageDto message = new MessageDto("게시글 삭제가 완료되었습니다.", "/board/list.do", RequestMethod.GET, queryParamsToMap(queryParams));
         return showMessageAndRedirect(message, model);

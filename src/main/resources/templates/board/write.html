@@ -22,58 +22,24 @@
                     </colgroup>
                     <tbody>
                     <tr>
-                        <th scope="row">종목</th>
-                        <td>
-                            <select id="event" name="event" title="종목 선택">
-                                <option value="FootBall">축구</option>
-                                <option value="BasketBall">농구</option>
-                                <option value="BaseBall">야구</option>
-                            </select>
-                        </td>
+                        <th scope="row">작성자</th>
+                        <td colspan="3"><input type="text" id="writer" name="writer" readonly /></td>
+                    </tr>
 
+                    <tr>
                         <th scope="row">등록일</th>
                         <td colspan="3"><input type="text" id="createdTime" name="createdTime" readonly /></td>
                     </tr>
 
                     <tr>
-                        <th>이름 <span class="es">필수 입력</span></th>
+                        <th>제목 <span class="es">필수 입력</span></th>
                         <td colspan="3"><input type="text" id="name" name="name" maxlength="50" placeholder="이름을 입력해 주세요." /></td>
                     </tr>
-
                     <tr>
-                        <th>포지션 <span class="es">필수 입력</span></th>
-                        <td colspan="3"><input type="text" id="location" name="location" maxlength="10" placeholder="포지션을 입력해 주세요." /></td>
+                        <th>내용 <span class="es">필수 입력</span></th>
+                        <td colspan="3"><textarea id="team" name="team" cols="50" rows="10" placeholder="내용을 입력해 주세요."></textarea></td>
                     </tr>
 
-                    <tr>
-                        <th>등번호 <span class="es">필수 입력</span></th>
-                        <td colspan="3"><input type="text" id="backNo" name="backNo" maxlength="10" placeholder="등번호를 입력해 주세요." /></td>
-                    </tr>
-
-                    <tr>
-                        <th>생일 <span class="es">필수 입력</span></th>
-                        <td colspan="3"><input type="text" id="birth" name="birth" maxlength="10" placeholder="생일을 입력해 주세요." /></td>
-                    </tr>
-
-                    <tr>
-                        <th>선호 발(손)<span class="es">필수 입력</span></th>
-                        <td colspan="3"><input type="text" id="preference" name="preference" maxlength="10" placeholder="선호 발(손)을 입력해 주세요." /></td>
-                    </tr>
-
-                    <tr>
-                        <th>국적 <span class="es">필수 입력</span></th>
-                        <td colspan="3"><input type="text" id="nation" name="nation" maxlength="10" placeholder="국적을 입력해 주세요." /></td>
-                    </tr>
-
-                    <tr>
-                        <th>소속팀 <span class="es">필수 입력</span></th>
-                        <td colspan="3"><input type="text" id="team" name="team" maxlength="10" placeholder="소속팀을 입력해 주세요." /></td>
-                    </tr>
-
-                    <tr>
-                        <th>작성자 <span class="es">필수 입력</span></th>
-                        <td colspan="3"><input type="text" id="writer" name="writer" maxlength="10" placeholder="당신의 이름을 입력해 주세요." /></td>
-                    </tr>
                     </tbody>
                 </table>
             </form>
@@ -103,7 +69,7 @@
             }
 
             const form = document.getElementById('saveForm');
-            const fields = ['event', 'name', 'location', 'backNo', 'birth', 'preference', 'nation', 'team', 'writer'];
+            const fields = ['name', 'team', 'writer'];
             form.createdTime.value = dayjs(board.createdTime).format('YYYY-MM-DD HH:mm');
 
             fields.forEach(field => {
@@ -121,8 +87,8 @@
         // 게시글 저장(수정)
         function saveBoard() {
             const form = document.getElementById('saveForm');
-            const fields = [form.event, form.name, form.location, form.backNo, form.birth, form.preference, form.nation, form.team, form.writer];
-            const fieldNames = ['종목', '이름', '포지션', '등번호', '생일', '선호', '국적', '소속팀', '작성자'];
+            const fields = [ form.name, form.team, form.writer];
+            const fieldNames = ['제목', '내용' ,'작성자'];
 
             for (let i = 0, len = fields.length; i < len; i++) {
                 isValid(fields[i], fieldNames[i]);
