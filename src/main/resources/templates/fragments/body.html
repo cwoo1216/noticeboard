@@ -7,7 +7,7 @@
             <h1>게시판 프로젝트</h1>
             <div class="top_menu">
                 <div class="login_user"><strong><i class="far fa-user-circle"></i></strong> 반갑습니다.</div>
-                <div class="logout"><button type="button"><span class="skip_info">로그아웃</span><i class="fas fa-sign-out-alt"></i></button></div>
+                <button type="button" onclick="goHome()">🏠</button>
             </div>
         </div>
     </header>
@@ -50,4 +50,9 @@
 
 <th:block layout:fragment="script"></th:block>
 </body>
+<script th:inline="javascript">
+    function goHome(){
+        location.href = '/board/list.do'
+    }
+</script>
 </html>

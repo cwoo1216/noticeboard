@@ -64,7 +64,7 @@
             <p class="btn_set">
                 <button type="button" onclick="goWritePage();" class="btns btn_bdr4 btn_mid">수정</button>
                 <button type="button" onclick="deleteBoard();" class="btns btn_bdr1 btn_mid">삭제</button>
-                <button type="button" onclick="goListPage();" class="btns btn_bdr3 btn_mid">🏠</button>
+                <button type="button" onclick="goListPage();" class="btns btn_bdr3 btn_mid">뒤로</button>
             </p>
 
             <!--/* 댓글 작성 */-->
@@ -77,14 +77,150 @@
                     </div>
                 </fieldset>
             </div>
+
+            <!--/* 댓글 리스트 */-->
+            <div class="cm_list">
+
+            </div>
         </section>
     </div> <!--/* .content */-->
+
+    <!--/* 댓글 수정 popup */-->
+    <div id="commentUpdatePopup" class="popLayer">
+        <h3>댓글 수정</h3>
+        <div class="pop_container">
+            <table class="tb tb_row tl">
+                <colgroup>
+                    <col style="width:30%;" /><col style="width:70%;" />
+                </colgroup>
+                <tbody>
+                <tr>
+                    <th scope="row">작성자<span class="es">필수 입력</span></th>
+                    <td><input type="text" id="modalWriter" name="modalWriter" placeholder="작성자를 입력해 주세요." /></td>
+                </tr>
+                <tr>
+                    <th scope="row">내용<span class="es">필수 입력</span></th>
+                    <td><textarea id="modalContent" name="modalContent" cols="90" rows="10" placeholder="수정할 내용을 입력해 주세요."></textarea></td>
+                </tr>
+                </tbody>
+            </table>
+            <p class="btn_set">
+                <button type="button" id="commentUpdateBtn" class="btns btn_st2">수정</button>
+                <button type="button" class="btns btn_bdr2" onclick="closeCommentUpdatePopup();">취소</button>
+            </p>
+        </div>
+        <button type="button" class="btn_close" onclick="closeCommentUpdatePopup();"><span><i class="far fa-times-circle"></i></span></button>
+    </div>
+
 </th:block>
+
 <th:block layout:fragment="script">
     <script th:inline="javascript">
         /*<![CDATA[*/
 
-        //댓글 길이 카운팅
+        window.onload = () => {
+            findAllComment();
+        }
+
+        // 댓글 삭제
+        function deleteComment(id) {
+            if (!confirm('댓글을 삭제합니까?')){
+                return false;
+            }
+
+            const playerId = [[ ${board.id} ]];
+            const uri = `/boards/${playerId}/comments/${id}`;
+            callApi(uri, 'delete');
+            alert('삭제되었습니다.');
+            findAllComment();
+        }
+
+        // 댓글 수정
+        function updateComment(id) {
+            const writer = document.getElementById('modalWriter');
+            const content = document.getElementById('modalContent');
+            isValid(writer, '작성자');
+            isValid(content, '수정 사항');
+
+            const playerId = [[ ${board.id} ]];
+            const uri = `/boards/${playerId}/comments/${id}`;
+            const params = {
+                id : id,
+                playerId : playerId,
+                content : content.value,
+                writer : writer.value
+            }
+
+            callApi(uri, 'patch', params);
+            alert('수정되었습니다.');
+            closeCommentUpdatePopup();
+            findAllComment();
+
+        }
+
+        // 댓글 수정 열기
+        function openCommentUpdatePopup(id) {
+            const playerId = [[ ${board.id} ]];
+            const uri = `/boards/${playerId}/comments/${id}`;
+            const response = getJson(uri);
+
+                    document.getElementById('modalWriter').value = response.writer;
+                    document.getElementById('modalContent').value = response.content;
+                    document.getElementById('commentUpdateBtn').setAttribute('onclick', `updateComment(${id})`);
+                    layerPop('commentUpdatePopup');
+        }
+        // 댓글 수정 닫기
+        function closeCommentUpdatePopup() {
+            document.querySelectorAll('#modalContent, #modalWriter').forEach(element => element.value = '');
+            document.getElementById('commentUpdateBtn').removeAttribute('onclick');
+            layerPopClose('commentUpdatePopup');
+        }
+
+
+        // 댓글 리스트
+        function findAllComment(){
+            const playerId = [[ ${board.id} ]];
+
+            $.ajax({
+                url : `/boards/${playerId}/comments`,
+                type : 'get',
+                dataType : 'json',
+                async : false,
+                success : function (response) {
+                    // 리스트가 없는 경우
+                    if (!response.length) {
+                        document.querySelector('.cm_list').innerHTML = '<div class="cm_none"><p>댓글이 존재하지 않습니다.</p></div>';
+                        return false;
+                    }
+                    // html 변수 설정
+                    let commentHtml = '';
+                    // 댓글 html
+                    response.forEach(row =>{
+                        commentHtml += `
+                        <div>
+                            <span class="writer_img"><img src="/images/default_profile.png" width="30" height="30" alt="기본 프로필 이미지"/></span>
+                            <p class="writer">
+                                <em>${row.writer}</em>
+                                <span class="date">${dayjs(row.createdDate).format('YYYY-MM-DD HH:mm')}</span>
+                            </p>
+                            <div class="cont"><div class="txt_con">${row.content}</div></div>
+                            <p class="func_btns">
+                                <button type="button" class="btns" onclick="openCommentUpdatePopup(${row.id});"><span class="icons icon_modify">수정</span></button>
+                                <button type="button" class="btns" onclick="deleteComment(${row.id})"><span class="icons icon_del">삭제</span></button>
+                            </p>
+                        </div>
+                    `;})
+                    // cm_list에 html 넣기
+                    document.querySelector('.cm_list').innerHTML = commentHtml;
+
+                },
+                error : function (request, status, error) {
+                    console.log(error)
+                }
+            })
+        }
+
+        // 댓글 길이 카운팅
         function countingLength(content){
             if (content.value.length > 300){
                 alert("댓글이 너무 길어요!");
@@ -115,7 +251,10 @@
                 data : JSON.stringify(params),
                 async : false,
                 success : function (response) {
-                    console.log(response);
+                    alert('저장 완료!');
+                    content.value ='';  // 댓글 내용 초기화
+                    document.getElementById('counter').innerText = '0/300자'  // 댓글 글자 수 초기화
+                    findAllComment();
                 },
                 error : function (request, status, error) {
                     console.log(error)
@@ -172,6 +311,53 @@
             target.value = '';
             ( !focusTarget ? target : focusTarget).focus();
             throw new Error(`"${target.id}" is required...`)
+        }
+
+        function callApi(uri, method, params) {
+
+            let json = {}
+
+            $.ajax({
+                url: uri,
+                type: method,
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: (params) ? JSON.stringify(params) : {},
+                async: false,
+                success: function (response) {
+                    json = response;
+                },
+                error: function (request, status, error) {
+                    console.log(error)
+                }
+            })
+
+            return json;
+        }
+
+        function getJson(uri, params) {
+
+            let json = {}
+
+            $.ajax({
+                url : uri,
+                type : 'get',
+                dataType : 'json',
+                data : params,
+                async : false,
+                success : function (response) {
+                    json = response;
+                },
+                error : function (request, status, error) {
+                    console.log(error)
+                }
+            })
+
+            return json;
+        }
+
+        function goHome(){
+            location.href = '/board/list.do'
         }
         /*]]>*/
 
