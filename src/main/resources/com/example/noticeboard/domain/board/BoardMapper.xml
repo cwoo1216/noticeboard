@@ -32,11 +32,11 @@
                         <when test="'name'.equals( searchType )">
                             AND name LIKE CONCAT('%', #{keyword},'%')
                         </when>
-                        <when test="'nation'.equals( searchType )">
-                            AND nation LIKE CONCAT('%', #{keyword},'%')
-                        </when>
                         <when test="'team'.equals( searchType )">
                             AND team LIKE CONCAT('%', #{keyword},'%')
+                        </when>
+                        <when test="'writer'.equals( searchType )">
+                            AND writer LIKE CONCAT('%', #{keyword},'%')
                         </when>
                         <when test="'location'.equals( searchType )">
                             AND location LIKE CONCAT('%', #{keyword},'%')

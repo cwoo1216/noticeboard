@@ -96,6 +96,13 @@
 
         window.onload = () => {
             findAllComment();
+            log_in();
+
+        }
+
+        // 로그인 정보 랜더링
+        function log_in(){
+            document.getElementById('login-writer').innerHTML = '<div><strong><i class="far fa-user-circle"></i></strong>[[${board.writer}]]</div>';
         }
 
         // 댓글 삭제
@@ -333,7 +340,7 @@
         }
 
         function goHome(){
-            location.href = '/board/list.do'
+            location.href = ''
         }
         /*]]>*/
 

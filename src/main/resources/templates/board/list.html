@@ -19,8 +19,8 @@
                         <select id="searchType" name="searchType" title="검색 유형 선택">
                             <option value="">전체 검색</option>
                             <option value="name">제목</option>
-                            <option value="writer">작성자</option>
                             <option value="team">내용</option>
+                            <option value="writer">작성자</option>
                         </select>
                         <input type="text" id="keyword" name="keyword" placeholder="키워드를 입력해 주세요." title="키워드 입력" />
                         <button type="button" class="bt_search" onclick="movePage(1);"><i class="fas fa-search"></i><span class="skip_info">검색</span></button>
@@ -206,7 +206,7 @@
         }
 
         function goHome(){
-            location.href = '/board/list.do'
+            location.href = ''
         }
 
         /*]]>*/
